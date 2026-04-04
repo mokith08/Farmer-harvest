@@ -1,5 +1,4 @@
 import express from "express";
-import { createServer as createViteServer } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
 import Razorpay from "razorpay";
@@ -108,14 +107,20 @@ async function startServer() {
     }
   });
 
+  // Environment Detection
+  const isProd = process.env.NODE_ENV === "production" || process.env.RENDER === "true";
+
   // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
+  if (!isProd) {
+    console.log("Starting in DEVELOPMENT mode with Vite Middleware...");
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
   } else {
+    console.log("Starting in PRODUCTION mode, serving static files from /dist...");
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
     app.get("*", (req, res) => {
@@ -124,8 +129,13 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`🚀 HarvestHub Live on Port: ${PORT}`);
+    console.log(`Environment: ${isProd ? 'Production' : 'Development'}`);
   });
 }
 
-startServer();
+// Catch and log startup errors
+startServer().catch((err) => {
+  console.error("❌ CRITICAL SERVER STARTUP ERROR:", err);
+  process.exit(1);
+});
