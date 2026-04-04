@@ -1,0 +1,86 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         (request.auth.token.email == "mokith.al23@bitsathy.ac.in" && request.auth.token.email_verified == true));
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function validString(field, maxLen) {
+      return request.resource.data[field] is string && request.resource.data[field].size() <= maxLen;
+    }
+
+    // ===============================================================
+    // Data Validation
+    // ===============================================================
+    function isValidProduct() {
+      return hasOnlyAllowedFields(['name', 'description', 'price', 'unit', 'category', 'stock', 'imageUrl', 'sellerId', 'upiId', 'createdAt', 'updatedAt']) &&
+             validString('name', 100) &&
+             validString('description', 1000) &&
+             request.resource.data.price is number &&
+             request.resource.data.stock is int &&
+             request.resource.data.sellerId == request.auth.uid;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    // Connection Test
+    match /test/connection {
+      allow read: if true;
+    }
+
+    // User Profiles
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId) && 
+        request.resource.data.role in ['buyer', 'seller'] &&
+        hasOnlyAllowedFields(['uid', 'email', 'displayName', 'role', 'createdAt', 'sellerProfile', 'photoURL']);
+      allow update: if isOwner(userId) && 
+        request.resource.data.role in ['buyer', 'seller'] &&
+        hasOnlyAllowedFields(['uid', 'email', 'displayName', 'role', 'createdAt', 'sellerProfile', 'photoURL']);
+    }
+
+    // Products
+    match /products/{productId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'seller' &&
+        isValidProduct();
+      allow update: if isAuthenticated() && 
+        resource.data.sellerId == request.auth.uid &&
+        isValidProduct();
+      allow delete: if isAuthenticated() && 
+        resource.data.sellerId == request.auth.uid;
+    }
+
+    // Orders
+    match /orders/{orderId} {
+      allow read: if isAuthenticated() && 
+        (resource.data.buyerId == request.auth.uid || resource.data.sellerId == request.auth.uid);
+      allow create: if isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'buyer' &&
+        hasOnlyAllowedFields(['buyerId', 'buyerEmail', 'buyerUpiId', 'sellerId', 'sellerUpiId', 'productId', 'productName', 'quantity', 'totalPrice', 'status', 'deliveryAddress', 'createdAt', 'paymentId']);
+      allow update: if isAuthenticated() && 
+        (resource.data.buyerId == request.auth.uid || resource.data.sellerId == request.auth.uid);
+    }
+  }
+}

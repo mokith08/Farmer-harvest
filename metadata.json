@@ -1,0 +1,7 @@
+{
+  "name": "HarvestHub: Farmer & Buyer Marketplace",
+  "description": "A dual-role platform for local farmers to sell their fresh harvest and for buyers to discover, review, and purchase organic produce directly from the source.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}

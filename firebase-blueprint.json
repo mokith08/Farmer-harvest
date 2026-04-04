@@ -1,0 +1,81 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Stores user details and their role (buyer or seller).",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["buyer", "seller"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "sellerProfile": {
+          "type": "object",
+          "properties": {
+            "farmName": { "type": "string" },
+            "address": { "type": "string" },
+            "phone": { "type": "string" },
+            "description": { "type": "string" }
+          }
+        }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Items listed by sellers for sale.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "sellerId": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "unit": { "type": "string", "description": "kg, bunch, piece, etc." },
+        "category": { "type": "string" },
+        "stock": { "type": "number" },
+        "imageUrl": { "type": "string" },
+        "upiId": { "type": "string", "description": "Seller UPI ID for GPay" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["sellerId", "name", "price", "category"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Purchases made by buyers.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "buyerId": { "type": "string" },
+        "buyerEmail": { "type": "string" },
+        "buyerUpiId": { "type": "string", "description": "Buyer UPI ID for GPay" },
+        "sellerId": { "type": "string" },
+        "sellerUpiId": { "type": "string", "description": "Seller UPI ID for GPay" },
+        "productId": { "type": "string" },
+        "productName": { "type": "string" },
+        "quantity": { "type": "number" },
+        "totalPrice": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "paid", "shipped", "delivered", "cancelled"] },
+        "paymentId": { "type": "string" },
+        "deliveryAddress": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["buyerId", "sellerId", "productId", "quantity", "totalPrice", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profiles"
+    },
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Marketplace products"
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Transaction records"
+    }
+  }
+}
