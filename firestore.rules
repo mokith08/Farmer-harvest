@@ -31,7 +31,7 @@ service cloud.firestore {
     // Data Validation
     // ===============================================================
     function isValidProduct() {
-      return hasOnlyAllowedFields(['name', 'description', 'price', 'unit', 'category', 'stock', 'imageUrl', 'sellerId', 'upiId', 'createdAt', 'updatedAt']) &&
+      return hasOnlyAllowedFields(['name', 'description', 'price', 'unit', 'category', 'stock', 'imageUrl', 'sellerId', 'createdAt', 'updatedAt']) &&
              validString('name', 100) &&
              validString('description', 1000) &&
              request.resource.data.price is number &&
@@ -78,7 +78,7 @@ service cloud.firestore {
         (resource.data.buyerId == request.auth.uid || resource.data.sellerId == request.auth.uid);
       allow create: if isAuthenticated() && 
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'buyer' &&
-        hasOnlyAllowedFields(['buyerId', 'buyerEmail', 'buyerUpiId', 'sellerId', 'sellerUpiId', 'productId', 'productName', 'quantity', 'totalPrice', 'status', 'deliveryAddress', 'createdAt', 'paymentId']);
+        hasOnlyAllowedFields(['buyerId', 'buyerEmail', 'sellerId', 'productId', 'productName', 'quantity', 'totalPrice', 'status', 'deliveryAddress', 'createdAt', 'paymentId']);
       allow update: if isAuthenticated() && 
         (resource.data.buyerId == request.auth.uid || resource.data.sellerId == request.auth.uid);
     }

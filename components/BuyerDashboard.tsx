@@ -75,8 +75,6 @@ const BuyerDashboard: React.FC<BuyerDashboardProps> = ({ profile }) => {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [showPaymentRequest, setShowPaymentRequest] = useState(false);
   const [deliveryAddress, setDeliveryAddress] = useState('');
-  const [buyerUpiId, setBuyerUpiId] = useState('');
-  const [upiError, setUpiError] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isCooking, setIsCooking] = useState(false);
   const [cookingAdvice, setCookingAdvice] = useState<string | null>(null);
@@ -210,15 +208,7 @@ const BuyerDashboard: React.FC<BuyerDashboardProps> = ({ profile }) => {
 
   const cartTotal = cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
 
-  const validateUpi = (id: string) => {
-    const upiRegex = /^[\w.-]+@[\w.-]+$/;
-    if (!upiRegex.test(id)) {
-      setUpiError('Invalid UPI ID format (e.g. name@okaxis)');
-      return false;
-    }
-    setUpiError('');
-    return true;
-  };
+
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();

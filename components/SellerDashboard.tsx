@@ -38,8 +38,7 @@ const SellerDashboard: React.FC<SellerDashboardProps> = ({ profile }) => {
     unit: 'kg',
     category: 'Vegetables',
     stock: '',
-    imageUrl: '',
-    upiId: ''
+    imageUrl: ''
   });
 
   useEffect(() => {
@@ -49,7 +48,9 @@ const SellerDashboard: React.FC<SellerDashboardProps> = ({ profile }) => {
 
     if (isGuest) {
       setProducts([
-        { id: 'demo-p1', name: 'Fresh Organic Tomatoes', description: 'Sun-ripened tomatoes.', price: 40, unit: 'kg', category: 'Vegetables', stock: 50, sellerId: profile.uid, imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&q=80&w=400', createdAt: new Date().toISOString() }
+        { id: 'demo-p1', name: 'Fresh Organic Tomatoes', description: 'Sun-ripened tomatoes.', price: 40, unit: 'kg', category: 'Vegetables', stock: 50, sellerId: profile.uid, imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&q=80&w=400', createdAt: new Date().toISOString() },
+        { id: 'demo-p2', name: 'Carrot', description: 'Fresh, crunchy carrots.', price: 50, unit: 'kg', category: 'Vegetables', stock: 10, sellerId: profile.uid, imageUrl: 'https://images.unsplash.com/photo-1590865101275-2d928ee0d20b?auto=format&fit=crop&q=80&w=400', createdAt: new Date().toISOString() },
+        { id: 'demo-p3', name: 'Potato', description: 'Fresh farm potatoes.', price: 50, unit: 'kg', category: 'Vegetables', stock: 20, sellerId: profile.uid, imageUrl: 'https://images.unsplash.com/photo-1518977676601-b53f02bad675?auto=format&fit=crop&q=80&w=400', createdAt: new Date().toISOString() }
       ]);
       setOrders([
         { id: 'demo-o1', buyerId: 'guest-buyer', buyerEmail: 'guest@demo.com', sellerId: profile.uid, productId: 'demo-p1', productName: 'Organic Tomatoes', quantity: 5, totalPrice: 200, status: 'paid', deliveryAddress: '123 Farm Street', createdAt: new Date().toISOString() }
@@ -118,20 +119,39 @@ const SellerDashboard: React.FC<SellerDashboardProps> = ({ profile }) => {
         updatedAt: new Date().toISOString()
       };
 
-      if (editingProduct) {
-        await updateDoc(doc(db, 'products', editingProduct.id), productData);
-        console.log("Product updated successfully");
-      } else {
-        await addDoc(collection(db, 'products'), {
+      const isGuest = profile.uid.startsWith('guest');
+      
+      if (isGuest) {
+        // Simulate Firestore latency for demo feel
+        await new Promise(r => setTimeout(r, 600));
+        
+        const newProd: Product = {
           ...productData,
-          createdAt: new Date().toISOString()
-        });
-        console.log("Product added successfully");
+          id: editingProduct ? editingProduct.id : 'demo-p-' + Math.random().toString(36).substring(2, 7),
+          createdAt: editingProduct ? (editingProduct as any).createdAt : new Date().toISOString()
+        } as Product;
+
+        if (editingProduct) {
+          setProducts(prev => prev.map(p => p.id === editingProduct.id ? newProd : p));
+        } else {
+          setProducts(prev => [newProd, ...prev]);
+        }
+      } else {
+        if (editingProduct) {
+          await updateDoc(doc(db, 'products', editingProduct.id), productData);
+          console.log("Product updated successfully");
+        } else {
+          await addDoc(collection(db, 'products'), {
+            ...productData,
+            createdAt: new Date().toISOString()
+          });
+          console.log("Product added successfully");
+        }
       }
 
       setIsAdding(false);
       setEditingProduct(null);
-      setFormData({ name: '', description: '', price: '', unit: 'kg', category: 'Vegetables', stock: '', imageUrl: '', upiId: '' });
+      setFormData({ name: '', description: '', price: '', unit: 'kg', category: 'Vegetables', stock: '', imageUrl: '' });
       setPriceAdvice(null);
     } catch (error) {
       console.error("Error saving product:", error);
@@ -142,9 +162,15 @@ const SellerDashboard: React.FC<SellerDashboardProps> = ({ profile }) => {
   const handleDelete = async () => {
     if (!productToDelete) return;
     
+    const isGuest = profile.uid.startsWith('guest');
+    
     try {
-      await deleteDoc(doc(db, 'products', productToDelete.id));
-      console.log("Product deleted successfully");
+      if (isGuest) {
+        setProducts(prev => prev.filter(p => p.id !== productToDelete.id));
+      } else {
+        await deleteDoc(doc(db, 'products', productToDelete.id));
+        console.log("Product deleted successfully");
+      }
       setProductToDelete(null);
     } catch (error) {
       handleFirestoreError(error, OperationType.DELETE, `products/${productToDelete.id}`);
@@ -164,8 +190,7 @@ const SellerDashboard: React.FC<SellerDashboardProps> = ({ profile }) => {
       unit: product.unit,
       category: product.category,
       stock: product.stock.toString(),
-      imageUrl: product.imageUrl || '',
-      upiId: product.upiId || ''
+      imageUrl: product.imageUrl || ''
     });
     setIsAdding(true);
   };
@@ -226,13 +251,52 @@ const SellerDashboard: React.FC<SellerDashboardProps> = ({ profile }) => {
                 </p>
               </div>
             </div>
-            <button 
-              onClick={() => setIsAdding(true)}
-              className="bg-emerald-600 p-6 rounded-[32px] text-white flex items-center justify-center gap-3 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 group"
-            >
-              <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform" />
-              <span className="text-lg font-bold">Add New Product</span>
-            </button>
+            
+            <div className="flex flex-col gap-4">
+              <button 
+                onClick={() => setIsAdding(true)}
+                className="w-full bg-emerald-600 p-6 rounded-[32px] text-white flex items-center justify-center gap-3 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 group"
+              >
+                <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform" />
+                <span className="text-lg font-bold">Add New Product</span>
+              </button>
+
+              <button 
+                onClick={async () => {
+                  const demoProducts = [
+                    { name: 'Pure Raw Honey', description: 'Sun-drenched raw honey from the Himalayan foothills.', price: 450, unit: '500g', category: 'Honey', stock: 25, imageUrl: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&q=80&w=400' },
+                    { name: 'Organic Alphonso Mangoes', description: 'Premium grade A King of Mangoes.', price: 1200, unit: 'dozen', category: 'Fruits', stock: 10, imageUrl: 'https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&q=80&w=400' },
+                    { name: 'Basmati Rice (Aged)', description: 'Traditional long-grain aromatic aged rice.', price: 180, unit: 'kg', category: 'Grains', stock: 150, imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&q=80&w=400' },
+                    { name: 'Fresh Country Eggs', description: 'Farm-fresh free-range country eggs.', price: 120, unit: 'dozen', category: 'Dairy', stock: 30, imageUrl: 'https://images.unsplash.com/photo-1582722872445-44c59ebc41dd?auto=format&fit=crop&q=80&w=400' },
+                    { name: 'Farm Spinach', description: 'Crispy green organic mountain spinach.', price: 30, unit: 'bunch', category: 'Vegetables', stock: 40, imageUrl: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&q=80&w=400' }
+                  ];
+                  
+                  const isGuest = profile.uid.startsWith('guest');
+                  try {
+                    for (const p of demoProducts) {
+                      const productData = {
+                        ...p,
+                        sellerId: profile.uid,
+                        createdAt: new Date().toISOString()
+                      };
+                      if (isGuest) {
+                        setProducts(prev => [{ ...productData, id: 'demo-' + Math.random().toString(36).substr(2, 5) } as Product, ...prev]);
+                      } else {
+                        await addDoc(collection(db, 'products'), productData);
+                      }
+                    }
+                    alert("Database seeded! Everyone can now see these products.");
+                  } catch (err) {
+                    console.error("Seeding failed:", err);
+                    alert("Database seeding failed. Check your connection.");
+                  }
+                }}
+                className="w-full bg-stone-100 p-4 rounded-[24px] text-stone-600 flex items-center justify-center gap-2 hover:bg-stone-200 transition-all border border-stone-200"
+              >
+                <Sparkles className="w-5 h-5 text-emerald-600" />
+                <span className="font-bold">Populate Demo Products</span>
+              </button>
+            </div>
           </div>
 
           {/* Product List */}
@@ -355,7 +419,7 @@ const SellerDashboard: React.FC<SellerDashboardProps> = ({ profile }) => {
               onClick={() => {
                 setIsAdding(false);
                 setEditingProduct(null);
-                setFormData({ name: '', description: '', price: '', unit: 'kg', category: 'Vegetables', stock: '', imageUrl: '', upiId: '' });
+                setFormData({ name: '', description: '', price: '', unit: 'kg', category: 'Vegetables', stock: '', imageUrl: '' });
               }}
               className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm"
             />
@@ -374,7 +438,7 @@ const SellerDashboard: React.FC<SellerDashboardProps> = ({ profile }) => {
                     onClick={() => {
                       setIsAdding(false);
                       setEditingProduct(null);
-                      setFormData({ name: '', description: '', price: '', unit: 'kg', category: 'Vegetables', stock: '', imageUrl: '', upiId: '' });
+                      setFormData({ name: '', description: '', price: '', unit: 'kg', category: 'Vegetables', stock: '', imageUrl: '' });
                     }} 
                     className="p-2 hover:bg-stone-100 rounded-full transition-colors"
                   >
@@ -409,17 +473,6 @@ const SellerDashboard: React.FC<SellerDashboardProps> = ({ profile }) => {
                         <option>Honey</option>
                         <option>Others</option>
                       </select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-stone-400 uppercase tracking-widest">Seller UPI ID (for GPay)</label>
-                      <input
-                        required
-                        type="text"
-                        value={formData.upiId}
-                        onChange={(e) => setFormData({...formData, upiId: e.target.value})}
-                        className="w-full px-4 py-3 bg-stone-50 rounded-2xl border-none focus:ring-2 focus:ring-emerald-500 outline-none"
-                        placeholder="e.g. farmer@okaxis"
-                      />
                     </div>
                   </div>
 

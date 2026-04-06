@@ -1,10 +1,10 @@
 {
-  "projectId": "gen-lang-client-0265355153",
-  "appId": "1:256666224985:web:a317fe4aed38bae572a448",
-  "apiKey": "AIzaSyDgFQCCiRp5fFYLu2kcLxG6HQy_pEXpTFg",
-  "authDomain": "gen-lang-client-0265355153.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-f10a89c7-7cc0-41f1-b7d8-dd53d2bc5a52",
-  "storageBucket": "gen-lang-client-0265355153.firebasestorage.app",
-  "messagingSenderId": "256666224985",
-  "measurementId": ""
+  "projectId": "harvesthub-798f2",
+  "appId": "1:1041260763528:web:1a88164ac7cc5beed2823d",
+  "apiKey": "AIzaSyClTGLmNbjS5o4zWINR-gYKsoJ98n9qotw",
+  "authDomain": "harvesthub-798f2.firebaseapp.com",
+  "firestoreDatabaseId": "(default)",
+  "storageBucket": "harvesthub-798f2.firebasestorage.app",
+  "messagingSenderId": "1041260763528",
+  "measurementId": "G-FHHRT9MEYV"
 }

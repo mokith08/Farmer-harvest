@@ -57,14 +57,22 @@ const Navbar: React.FC<NavbarProps> = ({ profile }) => {
         </div>
 
         <div className="flex items-center gap-4 md:gap-6">
-          <div className="hidden md:flex items-center gap-2 text-stone-500">
-            {profile.role === 'buyer' ? (
-              <ShoppingBasket className="w-4 h-4" />
+          <button 
+            onClick={toggleRole}
+            disabled={isSwitching}
+            className="hidden md:flex items-center gap-2 text-stone-500 hover:text-emerald-600 transition-colors group px-3 py-1.5 hover:bg-emerald-50 rounded-xl"
+            title={`Switch to ${profile.role === 'buyer' ? 'Seller' : 'Buyer'} Portal`}
+          >
+            {isSwitching ? (
+              <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />
+            ) : profile.role === 'buyer' ? (
+              <ShoppingBasket className="w-4 h-4 group-hover:scale-110 transition-transform" />
             ) : (
-              <Sprout className="w-4 h-4" />
+              <Sprout className="w-4 h-4 group-hover:scale-110 transition-transform" />
             )}
-            <span className="text-sm font-medium capitalize">{profile.role} Portal</span>
-          </div>
+            <span className="text-sm font-bold capitalize">{profile.role} Portal</span>
+            <RefreshCw className={`w-3 h-3 text-stone-300 group-hover:text-emerald-500 transition-all ${isSwitching ? 'animate-spin' : ''}`} />
+          </button>
 
           <div className="h-8 w-[1px] bg-stone-100 hidden sm:block" />
 

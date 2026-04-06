@@ -24,7 +24,6 @@ export interface Product {
   category: string;
   stock: number;
   imageUrl: string;
-  upiId?: string;
   createdAt: string;
   updatedAt?: string;
 }
@@ -33,9 +32,7 @@ export interface Order {
   id: string;
   buyerId: string;
   buyerEmail: string;
-  buyerUpiId?: string;
   sellerId: string;
-  sellerUpiId?: string;
   productId: string;
   productName: string;
   quantity: number;

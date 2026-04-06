@@ -70,6 +70,6 @@ export const generateProductImage = async (productName: string): Promise<string>
     return result;
   }
 
-  // Fallback to Picsum
-  return `https://picsum.photos/seed/${encodeURIComponent(productName)}/400/400`;
+  // Fallback to keyword-based Unsplash search (more accurate than Picsum seed)
+  return `https://source.unsplash.com/400x400/?${encodeURIComponent(productName)},vegetable,fresh`;
 };
