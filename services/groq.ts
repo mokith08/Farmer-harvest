@@ -134,7 +134,7 @@ export const getProperMarketData = async () => {
       messages: [
         {
           role: "user",
-          content: "Generate 2 realistic Indian Markets and 2 realistic Indian Farmers for a farmer's market app. Return as JSON with 'mandis' and 'farmers' arrays.",
+          content: "Generate 2 realistic Indian Markets and 2 realistic Indian Farmers for a farmer's market app. Return as JSON with 'mandis' and 'farmers' arrays. Markets must have: name, location, timing, contact, rating, imagePrompt, description. Farmers must have: name, farm, location, specialty, bio, imagePrompt, experience.",
         },
       ],
       model: "llama-3.3-70b-versatile",
@@ -156,7 +156,7 @@ export const getNearbyMarkets = async (lat: number, lng: number) => {
       messages: [
         {
           role: "user",
-          content: `Identify 3 active local farmer markets closest to coordinates ${lat}, ${lng}. Return only JSON with an array named 'markets' containing: {id, name, address, distance, days (array), hours, vendorsCount, imagePrompt}.`,
+          content: `Identify 3 active local farmer markets closest to coordinates ${lat}, ${lng}. Return only JSON with an array named 'markets' containing: {name, location, timing, contact, rating, imagePrompt, description}.`,
         },
       ],
       model: "llama-3.3-70b-versatile",

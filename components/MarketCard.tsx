@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MapPin, Clock, Phone, ShoppingBag, ChevronRight, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import MarketMapModal from './MarketMapModal';
 
 interface MarketCardProps {
   market: {
@@ -16,6 +17,7 @@ interface MarketCardProps {
 
 const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isMapOpen, setIsMapOpen] = useState(false);
 
   return (
     <div className="bg-white rounded-[32px] border border-stone-100 overflow-hidden hover:shadow-xl transition-all group">
@@ -72,13 +74,19 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
             {isExpanded ? 'Show Less' : 'View Details'}
           </button>
           <button 
-            onClick={() => alert(`Opening location for ${market.name} in Market Maps...`)}
+            onClick={() => setIsMapOpen(true)}
             className="px-4 py-3 rounded-2xl bg-stone-900 text-white hover:bg-stone-800 transition-colors"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
       </div>
+
+      <MarketMapModal 
+        market={market} 
+        isOpen={isMapOpen} 
+        onClose={() => setIsMapOpen(false)} 
+      />
     </div>
   );
 };

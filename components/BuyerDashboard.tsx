@@ -436,7 +436,12 @@ const BuyerDashboard: React.FC<BuyerDashboardProps> = ({ profile }) => {
         try {
           const nearby = await getNearbyMarkets(latitude, longitude);
           if (nearby && nearby.length > 0) {
-            setMarkets(nearby);
+            // Generate images for nearby markets
+            const nearbyWithImages = await Promise.all(nearby.map(async (m: any) => ({
+              ...m,
+              image: await generateMarketImage(m.imagePrompt) || `https://picsum.photos/seed/${m.name}/600/400`
+            })));
+            setMarkets(nearbyWithImages);
           }
         } catch (error) {
           console.error("Error getting nearby markets:", error);
